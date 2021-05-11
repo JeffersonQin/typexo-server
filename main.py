@@ -42,6 +42,7 @@ def db2dict():
 	return data_sql.to_dict()
 
 def db_maxid():
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , "Operation: MAXID")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
@@ -59,28 +60,70 @@ def db_maxid():
 
 # dict当中字符串类型要加上单引号
 def db_add(data: dict):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , "Operation: ADD")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
 	sql = f"INSERT INTO typecho_contents (title, slug, created, modified, text, authorId, template, type, status, password, allowComment, allowPing, allowFeed) VALUES ({data['title']}, {data['slug']}, {data['created']}, {data['modified']}, {data['text']}, {data['authorId']}, {data['template']}, {data['type']}, {data['status']}, {data['password']}, {data['allowComment']}, {data['allowPing']}, {data['allowFeed']})"
 	log_command(sql)
-	res = -1
+	res = {"code": 0, "message": ""}
 	try:
 		cursor.execute(sql)
 		conn.commit()
 		# If slug value is not specified, update it with cid
 		if (data['slug'] == 'NULL'):
-			sql = f"UPDATE typecho_contents SET slug={db_maxid()} WHERE cid={db_maxid()}"
+			sql = f"UPDATE typecho_contents SET slug = {db_maxid()} WHERE cid = {db_maxid()}"
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
-			res = db_maxid()
+		res = {"code": db_maxid(), "message": "succeed"}
 	except Exception as e:
 		conn.rollback()
+		res = {"code": -1, "message": repr(e)}
 		print(repr(e))
 	conn.close()
 	return res
+
+def db_delete(cid: int):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , "Operation: DELETE")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	# Configure the sql command
+	sql = f"DELETE FROM typecho_contents WHERE cid = {cid}"
+	log_command(sql)
+	res = {"code": 0, "message": ""}
+	try:
+		cursor.execute(sql)
+		conn.commit()
+		res = {"code": 1, "message": "succeed"}
+	except Exception as e:
+		conn.rollback()
+		res = {"code": -1, "message": repr(e)}
+		print(repr(e))
+	conn.close()
+	return res
+
+def db_update(cid: int, data: dict):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , "Operation: UPDATE")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	keys = data.keys()
+	try:
+		# Update with each attribute
+		for key in keys:
+			sql = f"UPDATE typecho_contents SET {key} = {data[key]} WHERE cid = {cid}"
+			log_command(sql)
+			cursor.execute(sql)
+			conn.commit()
+		return {"code": 1, "message": "succeed"}
+	except Exception as e:
+		conn.rollback()
+		conn.close()
+		print(repr(e))
+		return {"code": -1, "message": repr(e)}
 
 @app.get("/fetch")
 def fetch(token: Optional[str] = ''):
@@ -104,21 +147,40 @@ def start_server():
 
 if __name__ == '__main__':
 	read_conf()
-	# db_cache()
-	# start_server()
-	db_maxid()
-	test_data = {"title": "'test title from py'", 
-			"slug": "NULL", 
-			"created": int(time.time()), 
-			"modified": int(time.time()), 
-			"text": "'工具测试内容'",
-			"authorId": 1,
-			"template": "NULL",
-			"type": "'post'",
-			"status": "'publish'",
-			"password": "NULL",
-			"allowComment": 1,
-			"allowPing": 1,
-			"allowFeed": 1
-			}
-	print(db_add(test_data))
+	start_server()
+	
+
+# def test():
+# 	db_cache()
+# 	start_server()
+# 	db_maxid()
+# 	test_data = {"title": "'test title from py'", 
+# 			"slug": "NULL", 
+# 			"created": int(time.time()), 
+# 			"modified": int(time.time()), 
+# 			"text": "'工具测试内容'",
+# 			"authorId": 1,
+# 			"template": "NULL",
+# 			"type": "'post'",
+# 			"status": "'publish'",
+# 			"password": "NULL",
+# 			"allowComment": 1,
+# 			"allowPing": 1,
+# 			"allowFeed": 1
+# 			}
+# 	test_data_modify = {"title": "'test title from py (ver 2.)'", 
+# 			"slug": "'test-slug-2'", 
+# 			"modified": int(time.time()), 
+# 			"text": "'测试修改内容，emoji 😀'",
+# 			"authorId": 0,
+# 			"template": "'github.php'",
+# 			"type": "'post_draft'",
+# 			"status": "'publish'",
+# 			"password": "'abcdefg'",
+# 			"allowComment": 1,
+# 			"allowPing": 1,
+# 			"allowFeed": 1
+# 			}
+# 	print(db_add(test_data))
+# 	print(db_delete(282))
+# 	print(db_update(283, test_data_modify))
