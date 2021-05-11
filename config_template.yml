@@ -1,4 +1,7 @@
 database:
-  host: 
-  username: 
-  password: 
+  host: 127.0.0.1
+  user: your_user
+  passwd: your_pwd
+  port: 3306
+  db: typecho
+  charset: utf8
