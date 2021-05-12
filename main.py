@@ -49,7 +49,6 @@ def db_fetch_database(db_name: str):
 	try:
 		cursor.execute(sql)
 		results = cursor.fetchall()
-		print(type(results))
 		conn.close()
 		return {
 			"code": 1,
@@ -65,12 +64,30 @@ def db_fetch_database(db_name: str):
 		}
 
 
-def db_maxid():
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: MAXID")
+def db_max_cid(db_name: str):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: MAXID", db_name)
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
-	sql = "SELECT MAX(cid) FROM typecho_contents"
+	sql = f"SELECT MAX(cid) FROM {db_name}"
+	log_command(sql)
+	try:
+		cursor.execute(sql)
+		results = cursor.fetchall()
+		conn.close()
+		return results[0][0]
+	except Exception as e:
+		print(repr(e))
+		conn.close()
+		return -1
+
+
+def db_max_mid(db_name: str):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: MAXID", db_name)
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	sql = f"SELECT MAX(mid) FROM {db_name}"
 	log_command(sql)
 	try:
 		cursor.execute(sql)
@@ -85,13 +102,13 @@ def db_maxid():
 # dict当中字符串类型要加上单引号
 
 
-def db_add(data: dict):
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: ADD")
+def db_add_content(data: dict):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: ADD content")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
-	sql = f"INSERT INTO typecho_contents (title, slug, created, modified, text, order, authorId, template, type, status, password, allowComment, allowPing, allowFeed) VALUES ({data['title']}, {data['slug']}, {data['created']}, {data['modified']}, {data['text']}, {data['order']}, {data['authorId']}, {data['template']}, {data['type']}, {data['status']}, {data['password']}, {data['allowComment']}, {data['allowPing']}, {data['allowFeed']})"
+	sql = f"INSERT INTO typecho_contents (title, slug, created, modified, text, authorId, template, type, status, password, allowComment, allowPing, allowFeed) VALUES ({data['title']}, {data['slug']}, {data['created']}, {data['modified']}, {data['text']}, {data['authorId']}, {data['template']}, {data['type']}, {data['status']}, {data['password']}, {data['allowComment']}, {data['allowPing']}, {data['allowFeed']})"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
@@ -99,11 +116,11 @@ def db_add(data: dict):
 		conn.commit()
 		# If slug value is not specified, update it with cid
 		if (data['slug'] == 'NULL'):
-			sql = f"UPDATE typecho_contents SET slug = {db_maxid()} WHERE cid = {db_maxid()}"
+			sql = f"UPDATE typecho_contents SET slug = {db_max_cid('typecho_contents')} WHERE cid = {db_max_cid('typecho_contents')}"
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
-		res = {"code": 1, "message": "succeed", "cid": db_maxid(), "hash": data['hash']}
+		res = {"code": 1, "message": "succeed", "cid": db_max_cid('typecho_contents'), "hash": data['hash']}
 	except Exception as e:
 		conn.rollback()
 		res = {"code": -1, "message": repr(e), "cid": -1, "hash": data['hash']}
@@ -112,8 +129,8 @@ def db_add(data: dict):
 	return res
 
 
-def db_delete(cid: int):
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: DELETE")
+def db_delete_content(cid: int):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: DELETE content")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
@@ -133,8 +150,8 @@ def db_delete(cid: int):
 	return res
 
 
-def db_update(cid: int, data: dict):
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: UPDATE")
+def db_update_content(cid: int, data: dict):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: UPDATE content")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
@@ -152,6 +169,112 @@ def db_update(cid: int, data: dict):
 		conn.close()
 		print(repr(e))
 		return {"code": -1, "message": repr(e), "cid": cid}
+
+
+def db_add_meta(data: dict):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: ADD meta")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	if data['slug'] == '': data['slug'] = data['name']
+	# Configure the sql command
+	sql = f"INSERT INTO typecho_metas (name, slug, type, description, count) VALUES ({data['name']}, {data['slug']}, {data['type']}, {data['description']}, {data['count']})"
+	log_command(sql)
+	res = {"code": 0, "message": ""}
+	try:
+		cursor.execute(sql)
+		conn.commit()
+		res = {"code": 1, "message": "succeed", "mid": db_max_mid("typecho_metas"), "hash": data['hash']}
+	except Exception as e:
+		conn.rollback()
+		res = {"code": -1, "message": repr(e), "mid": -1, "hash": data['hash']}
+		print(repr(e))
+	conn.close()
+	return res
+
+
+def db_delete_meta(mid: int):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: DELETE meta")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	# Configure the sql command
+	sql = f"DELETE FROM typecho_metas WHERE mid = {mid}"
+	log_command(sql)
+	res = {"code": 0, "message": ""}
+	try:
+		cursor.execute(sql)
+		conn.commit()
+		res = {"code": 1, "message": "succeed", "mid": mid}
+	except Exception as e:
+		conn.rollback()
+		res = {"code": -1, "message": repr(e), "mid": mid}
+		print(repr(e))
+	conn.close()
+	return res
+
+
+def db_update_meta(mid: int, data: dict):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: UPDATE meta")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	keys = data.keys()
+	try:
+		# Update with each attribute
+		for key in keys:
+			sql = f"UPDATE typecho_metas SET {key} = {data[key]} WHERE mid = {mid}"
+			log_command(sql)
+			cursor.execute(sql)
+			conn.commit()
+		return {"code": 1, "message": "succeed", "mid": mid}
+	except Exception as e:
+		conn.rollback()
+		conn.close()
+		print(repr(e))
+		return {"code": -1, "message": repr(e), "mid": mid}
+
+
+def db_add_relationship(cid: int, mid: int):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: ADD relationship")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	# Configure the sql command
+	sql = f"INSERT INTO typecho_relationships (cid, mid) VALUES ({cid}, {mid})"
+	log_command(sql)
+	res = {"code": 0, "message": ""}
+	try:
+		cursor.execute(sql)
+		conn.commit()
+		res = {"code": 1, "message": "succeed", "cid": cid, "mid": mid}
+	except Exception as e:
+		conn.rollback()
+		res = {"code": -1, "message": repr(e), "cid": cid, "mid": mid}
+		print(repr(e))
+	conn.close()
+	return res
+
+
+def db_delete_relationship(cid: int, mid: int):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: DELETE relationship")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	# Configure the sql command
+	sql = f"DELETE FROM typecho_relationships WHERE cid = {cid} AND mid = {mid}"
+	log_command(sql)
+	res = {"code": 0, "message": ""}
+	try:
+		cursor.execute(sql)
+		conn.commit()
+		res = {"code": 1, "message": "succeed", "cid": cid, "mid": mid}
+	except Exception as e:
+		conn.rollback()
+		res = {"code": -1, "message": repr(e), "cid": cid, "mid": mid}
+		print(repr(e))
+	conn.close()
+	return res
 
 
 @app.get("/welcome")
@@ -183,7 +306,7 @@ def fetch_relationships(token: Optional[str] = ''):
 
 
 @app.get("/push_contents")
-def push_contents(token: Optional[str] = '', update: Optional[list] = [], delete: Optional[list] = [], add: Optional[list] = []):
+def push_contents(token: Optional[str] = '', add: Optional[list] = [], update: Optional[list] = [], delete: Optional[list] = []):
 	if (token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
 	global flag_busy
@@ -193,14 +316,53 @@ def push_contents(token: Optional[str] = '', update: Optional[list] = [], delete
 	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
 	# Add
 	for add_item in add:
-		res['add'].append(db_add(add_item))
+		res['add'].append(db_add_content(add_item))
 	# Update
 	for update_item in update:
 		res['update'].append(
-			db_update(update_item['cid'], update_item['data']))
+			db_update_content(update_item['cid'], update_item['data']))
 	# Delete
 	for del_item in delete:
-		res['delete'].append(db_delete(del_item))
+		res['delete'].append(db_delete_content(del_item))
+	flag_busy = False
+	return res
+
+
+@app.get("/push_metas")
+def push_metas(token: Optional[str] = '', add: Optional[list] = [], update: Optional[list] = [], delete: Optional[list] = []):
+	if (token != conf['server']['token']):
+		return {"code": -1, "message": "incorrect token"}
+	global flag_busy
+	if (flag_busy == True):
+		return {"message": "another operation is in process", "code": -1}
+	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
+	# Add
+	for add_item in add:
+		res['add'].append(db_add_meta(add_item))
+	# Update
+	for update_item in update:
+		res['update'].append(db_update_meta(update_item['mid'], update_item['data']))
+	# Delete
+	for del_item in delete:
+		res['delete'].append(db_delete_meta(del_item))
+	flag_busy = False
+	return res
+
+
+@app.get("/push_relationships")
+def push_relationships(token: Optional[str] = '', add: Optional[list] = [], delete: Optional[list] = []):
+	if (token != conf['server']['token']):
+		return {"code": -1, "message": "incorrect token"}
+	global flag_busy
+	if (flag_busy == True):
+		return {"message": "another operation is in process", "code": -1}
+	res = {'code': 1, 'message': 'token correct', 'add': [], 'delete': []}
+	# Add
+	for add_item in add:
+		res['add'].append(db_add_relationship(add_item['cid'], add_item['mid']))
+	# Delete
+	for del_item in delete:
+		res['delete'].append(db_delete_relationship(del_item['cid'], del_item['mid']))
 	flag_busy = False
 	return res
 
@@ -213,39 +375,3 @@ def start_server():
 if __name__ == '__main__':
 	read_conf()
 	start_server()
-
-
-# def test():
-# 	db_cache()
-# 	start_server()
-# 	db_maxid()
-# 	test_data = {"title": "'test title from py'",
-# 			"slug": "NULL",
-# 			"created": int(time.time()),
-# 			"modified": int(time.time()),
-# 			"text": "'工具测试内容'",
-# 			"authorId": 1,
-# 			"template": "NULL",
-# 			"type": "'post'",
-# 			"status": "'publish'",
-# 			"password": "NULL",
-# 			"allowComment": 1,
-# 			"allowPing": 1,
-# 			"allowFeed": 1
-# 			}
-# 	test_data_modify = {"title": "'test title from py (ver 2.)'",
-# 			"slug": "'test-slug-2'",
-# 			"modified": int(time.time()),
-# 			"text": "'测试修改内容，emoji 😀'",
-# 			"authorId": 0,
-# 			"template": "'github.php'",
-# 			"type": "'post_draft'",
-# 			"status": "'publish'",
-# 			"password": "'abcdefg'",
-# 			"allowComment": 1,
-# 			"allowPing": 1,
-# 			"allowFeed": 1
-# 			}
-# 	print(db_add(test_data))
-# 	print(db_delete(282))
-# 	print(db_update(283, test_data_modify))
