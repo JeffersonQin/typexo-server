@@ -1,4 +1,4 @@
-For English README, please visit [here](https://github.com/JeffersonQin/typexo-server/blob/master/README-en.md).
+For English README, please visit [here](README-en.md).
 
 **本项目仍在开发之中，不建议现在使用。**
 
@@ -17,7 +17,8 @@ For English README, please visit [here](https://github.com/JeffersonQin/typexo-s
 
 # API文档
 
-中文API文档：[Click](https://github.com/JeffersonQin/typexo-server/blob/master/API.md).
+中文API文档：[Click](API.md).
+English API Document: [Click](API-en.md)
 
 # 使用方法
 

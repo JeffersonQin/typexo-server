@@ -13,6 +13,10 @@ This project only support blogs using `MySQL` as database in current stage. Othe
 - Python 3.7+
 - MySQL
 
+# API Document
+
+[Click here](API-en.md)
+
 # Usage
 
 1. Create `config.yml`. Copy `config_template.yml` as `config.yml`.

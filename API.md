@@ -1,4 +1,4 @@
-# typecho SQL设计解释
+# typecho数据库设计解释
 
 typecho官方对于数据库的说明文档：https://docs.typecho.org/database
 
@@ -169,7 +169,7 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
   | :-----: | :---------------------------------: | :------: | :-----: |
   |  code   |      状态码, 1为成功, -1为失败      |   int    |    1    |
   | message |        消息, 成功为"succeed"        |  string  | succeed |
-  |  data   | 文章数据, 请参照typecho SQL设计解释 |   list   |   略    |
+  |  data   | 文章数据, 请参照typecho数据库设计解释 |   list   |   略    |
 
 ## GET /push_contents
 
@@ -178,8 +178,8 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
     | 参数  | 说明  | 可选  | 示例  |
     | :---: | :---: | :---: | :---: |
     | token | 用于请求验证 | ✔ | your_token |
-    | add | 增加文章和页面, 是一个list。每个元素都有两个键值, 第一个键值为`hash`, 作为验证, 在本次增加的所有数据中应具有唯一性；第二个键值为`data`, 数据格式请参照typecho SQL设计解释 | ✔ | `[{"hash": 1323795, "data": <page_data_1>}, {"hash": 437289, "data": <page_data_2>}, ...]` |
-    | update | 更改已有文章和页面, 是一个list。每个元素都有两个键值, 第二个键值为文章`cid`, 第二个键值为`data`, 数据格式请参照typecho SQL设计解释。注：这里数据不需完全, 只需包含更改的条目 | ✔ | `[{"cid": 1, "data": <page_data_1>}, {"cid": 2, "data": <page_data_2>}, ...]` |
+    | add | 增加文章和页面, 是一个list。每个元素都有两个键值, 第一个键值为`hash`, 作为验证, 在本次增加的所有数据中应具有唯一性；第二个键值为`data`, 数据格式请参照typecho数据库设计解释 | ✔ | `[{"hash": 1323795, "data": <page_data_1>}, {"hash": 437289, "data": <page_data_2>}, ...]` |
+    | update | 更改已有文章和页面, 是一个list。每个元素都有两个键值, 第二个键值为文章`cid`, 第二个键值为`data`, 数据格式请参照typecho数据库设计解释。注：这里数据不需完全, 只需包含更改的条目 | ✔ | `[{"cid": 1, "data": <page_data_1>}, {"cid": 2, "data": <page_data_2>}, ...]` |
     | delete | 删除文章和页面, 是一个list, 包含了所有需要删除内容的`cid` | ✔ | `[1, 2, 3]` |
 - **返回值示例**:
     ```json
@@ -299,7 +299,7 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
   | :-----: | :---------------------------------: | :------: | :-----: |
   |  code   |      状态码, 1为成功, -1为失败      |   int    |    1    |
   | message |        消息, 成功为"succeed"        |  string  | succeed |
-  |  data   | meta数据, 请参照typecho SQL设计解释 |   list   |   略    |
+  |  data   | meta数据, 请参照typecho数据库设计解释 |   list   |   略    |
 
 ## GET /push_metas
 
@@ -308,8 +308,8 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
     | 参数  | 说明  | 可选  | 示例  |
     | :---: | :---: | :---: | :---: |
     | token | 用于请求验证 | ✔ | your_token |
-    | add | 增加meta, 是一个list。每个元素都有两个键值, 第一个键值为`hash`, 作为验证, 在本次增加的所有数据中应具有唯一性；第二个键值为`data`, 数据格式请参照typecho SQL设计解释 | ✔ | `[{"hash": 1323795, "data": <meta_data_1>}, {"hash": 437289, "data": <meta_data_2>}, ...]` |
-    | update | 更改已有meta, 是一个list。每个元素都有两个键值, 第二个键值为meta元素的`mid`, 第二个键值为`data`, 数据格式请参照typecho SQL设计解释。注：这里数据不需完全, 只需包含更改的条目 | ✔ | `[{"mid": 1, "data": <meta_data_1>}, {"mid": 2, "data": <meta_data_2>}, ...]` |
+    | add | 增加meta, 是一个list。每个元素都有两个键值, 第一个键值为`hash`, 作为验证, 在本次增加的所有数据中应具有唯一性；第二个键值为`data`, 数据格式请参照typecho数据库设计解释 | ✔ | `[{"hash": 1323795, "data": <meta_data_1>}, {"hash": 437289, "data": <meta_data_2>}, ...]` |
+    | update | 更改已有meta, 是一个list。每个元素都有两个键值, 第二个键值为meta元素的`mid`, 第二个键值为`data`, 数据格式请参照typecho数据库设计解释。注：这里数据不需完全, 只需包含更改的条目 | ✔ | `[{"mid": 1, "data": <meta_data_1>}, {"mid": 2, "data": <meta_data_2>}, ...]` |
     | delete | 删除meta, 是一个list, 包含了所有需要删除内容的`mid` | ✔ | `[1, 2, 3]` |
 - **返回值示例**:
     ```json
