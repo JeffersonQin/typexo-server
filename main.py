@@ -39,12 +39,12 @@ def db_cache():
 	data_sql = pd.read_sql("select * from typecho_contents", conn)
 	data_sql.to_csv(cache_dir)
 
-
-def db2dict():
+def db_fetch_database(db_name: str):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: FETCH", db_name)
 	# Export database to dict
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
-	sql = "select * from typecho_contents"
+	sql = f"select * from {db_name}"
 	log_command(sql)
 	try:
 		cursor.execute(sql)
@@ -91,7 +91,7 @@ def db_add(data: dict):
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
-	sql = f"INSERT INTO typecho_contents (title, slug, created, modified, text, authorId, template, type, status, password, allowComment, allowPing, allowFeed) VALUES ({data['title']}, {data['slug']}, {data['created']}, {data['modified']}, {data['text']}, {data['authorId']}, {data['template']}, {data['type']}, {data['status']}, {data['password']}, {data['allowComment']}, {data['allowPing']}, {data['allowFeed']})"
+	sql = f"INSERT INTO typecho_contents (title, slug, created, modified, text, order, authorId, template, type, status, password, allowComment, allowPing, allowFeed) VALUES ({data['title']}, {data['slug']}, {data['created']}, {data['modified']}, {data['text']}, {data['order']}, {data['authorId']}, {data['template']}, {data['type']}, {data['status']}, {data['password']}, {data['allowComment']}, {data['allowPing']}, {data['allowFeed']})"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
@@ -161,15 +161,29 @@ def welcome(token: Optional[str] = ''):
 	return {"code": 1, "message": "hello world"}
 
 
-@app.get("/fetch")
-def fetch(token: Optional[str] = ''):
+@app.get("/fetch_contents")
+def fetch_contents(token: Optional[str] = ''):
 	if (token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
-	return db2dict()
+	return db_fetch_database("typecho_contents")
 
 
-@app.get("/push")
-def push(token: Optional[str] = '', update: Optional[list] = [], delete: Optional[list] = [], add: Optional[list] = []):
+@app.get("/fetch_metas")
+def fetch_metas(token: Optional[str] = ''):
+	if (token != conf['server']['token']):
+		return {"code": -1, "message": "incorrect token"}
+	return db_fetch_database("typecho_metas")
+
+
+@app.get("/fetch_relationships")
+def fetch_relationships(token: Optional[str] = ''):
+	if (token != conf['server']['token']):
+		return {"code": -1, "message": "incorrect token"}
+	return db_fetch_database("typecho_relationships")
+
+
+@app.get("/push_contents")
+def push_contents(token: Optional[str] = '', update: Optional[list] = [], delete: Optional[list] = [], add: Optional[list] = []):
 	if (token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
 	global flag_busy
