@@ -1,8 +1,12 @@
+**!!! The project is still developing. It is not recommended to use it in the present stage !!!**
+
 # Introduction
 
 Inspired by `node`-based blogs such as `Hexo`, which can be edited locally, this project, `typexo`, aim to implement such feature for `typecho`. `typexo-server` is the implementation of the program on server, used to receive data and update the database.
 
-Note: This project only support blogs using `MySQL` as database in current stage. Other types of databses would be supported in the neat future.
+This project only support blogs using `MySQL` as database in current stage. Other types of databses would be supported in the neat future.
+
+**Note: This program will directly manipulate the database. If you don't know what the program is doing, please do not run the script. Data is priceless, make sure to backup the database before any operations.**
 
 # Environment
 

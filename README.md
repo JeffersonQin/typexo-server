@@ -1,10 +1,14 @@
 For English README, please visit [here](https://github.com/JeffersonQin/typexo-server/blob/master/README-en.md).
 
+**本项目仍在开发之中，不建议现在使用。**
+
 # 介绍
 
 受到`Hexo`这样的基于`node`的，可以本地编辑博客的启发，`typexo`旨在对于`typecho`的博客开发类似的功能。本项目`typexo-server`是服务器端的实现，用于接收数据，更新数据库。
 
 目前本项目针对`MySQL`数据库的博客开发，其他数据库日后会进行支持。
+
+**请注意：本程序会直接对数据库进行操作，如果你不知道程序在干什么，请勿执行。硬盘有价，数据无价。请确保在操作之前对数据库进行备份。**
 
 # 环境
 
