@@ -103,10 +103,10 @@ def db_add(data: dict):
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
-		res = {"code": 1, "message": "succeed", "op": "add", "cid": db_maxid(), "hash": data['hash']}
+		res = {"code": 1, "message": "succeed", "cid": db_maxid(), "hash": data['hash']}
 	except Exception as e:
 		conn.rollback()
-		res = {"code": -1, "message": repr(e), "op": "add", "hash": data['hash']}
+		res = {"code": -1, "message": repr(e), "hash": data['hash']}
 		print(repr(e))
 	conn.close()
 	return res
@@ -124,10 +124,10 @@ def db_delete(cid: int):
 	try:
 		cursor.execute(sql)
 		conn.commit()
-		res = {"code": 1, "message": "succeed", "op": "delete", "cid": cid}
+		res = {"code": 1, "message": "succeed", "cid": cid}
 	except Exception as e:
 		conn.rollback()
-		res = {"code": -1, "message": repr(e), "op": "delete", "cid": cid}
+		res = {"code": -1, "message": repr(e), "cid": cid}
 		print(repr(e))
 	conn.close()
 	return res
@@ -146,12 +146,12 @@ def db_update(cid: int, data: dict):
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
-		return {"code": 1, "message": "succeed", "op": "update", "cid": cid}
+		return {"code": 1, "message": "succeed", "cid": cid}
 	except Exception as e:
 		conn.rollback()
 		conn.close()
 		print(repr(e))
-		return {"code": -1, "message": repr(e), "op": "update", "cid": cid}
+		return {"code": -1, "message": repr(e), "cid": cid}
 
 
 @app.get("/welcome")
