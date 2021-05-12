@@ -133,13 +133,13 @@ def fetch(token: Optional[str] = ''):
 @app.get("/push")
 def push(token: Optional[str] = '', modify: Optional[list] = [], delete: Optional[list] = [], add: Optional[list] = []):
 	if (token != conf['server']['token']): return {"message": "incorrect token", "code": -1}
-	global flag_busy;
+	global flag_busy
 	if (flag_busy == True): return {"message": "another operation is in process", "code": -1}
-	flag_busy = True;
+	flag_busy = True
 
 	
 
-	flag_busy = False;
+	flag_busy = False
 	return {"todo": "todo"}
 
 def start_server():
