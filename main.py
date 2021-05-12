@@ -106,7 +106,7 @@ def db_add(data: dict):
 		res = {"code": 1, "message": "succeed", "cid": db_maxid(), "hash": data['hash']}
 	except Exception as e:
 		conn.rollback()
-		res = {"code": -1, "message": repr(e), "hash": data['hash']}
+		res = {"code": -1, "message": repr(e), "cid": -1, "hash": data['hash']}
 		print(repr(e))
 	conn.close()
 	return res
