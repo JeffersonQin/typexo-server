@@ -103,10 +103,10 @@ def db_add(data: dict):
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
-		res = {"code": db_maxid(), "message": "succeed"}
+		res = {"code": 1, "message": "succeed", "op": "add", "cid": db_maxid(), "hash": data['hash']}
 	except Exception as e:
 		conn.rollback()
-		res = {"code": -1, "message": repr(e)}
+		res = {"code": -1, "message": repr(e), "op": "add", "hash": data['hash']}
 		print(repr(e))
 	conn.close()
 	return res
@@ -124,10 +124,10 @@ def db_delete(cid: int):
 	try:
 		cursor.execute(sql)
 		conn.commit()
-		res = {"code": 1, "message": "succeed"}
+		res = {"code": 1, "message": "succeed", "op": "delete", "cid": cid}
 	except Exception as e:
 		conn.rollback()
-		res = {"code": -1, "message": repr(e)}
+		res = {"code": -1, "message": repr(e), "op": "delete", "cid": cid}
 		print(repr(e))
 	conn.close()
 	return res
@@ -146,19 +146,19 @@ def db_update(cid: int, data: dict):
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
-		return {"code": 1, "message": "succeed"}
+		return {"code": 1, "message": "succeed", "op": "update", "cid": cid}
 	except Exception as e:
 		conn.rollback()
 		conn.close()
 		print(repr(e))
-		return {"code": -1, "message": repr(e)}
+		return {"code": -1, "message": repr(e), "op": "update", "cid": cid}
 
 
 @app.get("/welcome")
 def welcome(token: Optional[str] = ''):
 	if (token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
-	return {"hello": "world"}
+	return {"code": 1, "message": "hello world"}
 
 
 @app.get("/fetch")
@@ -176,7 +176,7 @@ def push(token: Optional[str] = '', update: Optional[list] = [], delete: Optiona
 	if (flag_busy == True):
 		return {"message": "another operation is in process", "code": -1}
 	flag_busy = True
-	res = {'add': [], 'update': [], 'delete': []}
+	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
 	# Add
 	for add_item in add:
 		res['add'].append(db_add(add_item))
