@@ -15,6 +15,10 @@ For English README, please visit [here](https://github.com/JeffersonQin/typexo-s
 - Python 3.7+
 - MySQL
 
+# API文档
+
+中文API文档：[Click](https://github.com/JeffersonQin/typexo-server/blob/master/API.md).
+
 # 使用方法
 
 1. 新建`config.yml`。将`config_template.yml`复制一份，并重命名为`config.yml`。
