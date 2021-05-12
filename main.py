@@ -19,6 +19,7 @@ app = FastAPI()
 # Flag meaning whether another operation is in process
 flag_busy = False
 
+
 def read_conf():
 	# Read configuration
 	with open(config_dir, 'r') as f:
@@ -26,8 +27,11 @@ def read_conf():
 		global conf
 		conf = yaml.load(contents, Loader=yaml.FullLoader)
 
+
 def log_command(sql: str):
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , "SQL command: ", sql)
+	print(time.strftime("%Y-%m-%d %H:%M:%S",
+		  time.localtime()), "SQL command: ", sql)
+
 
 def db_cache():
 	# Export database to cache
@@ -35,14 +39,34 @@ def db_cache():
 	data_sql = pd.read_sql("select * from typecho_contents", conn)
 	data_sql.to_csv(cache_dir)
 
+
 def db2dict():
 	# Export database to dict
 	conn = pymysql.connect(**conf['database'])
-	data_sql = pd.read_sql("select * from typecho_contents", conn)
-	return data_sql.to_dict()
+	cursor = conn.cursor(cursor=pymysql.cursors.DictCursor)
+	sql = "select * from typecho_contents"
+	log_command(sql)
+	try:
+		cursor.execute(sql)
+		results = cursor.fetchall()
+		print(type(results))
+		conn.close()
+		return {
+			"code": 1,
+			"message": "succeed",
+			"data": results
+		}
+	except Exception as e:
+		print(repr(e))
+		conn.close()
+		return {
+			"code": -1,
+			"message": repr(e)
+		}
+
 
 def db_maxid():
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , "Operation: MAXID")
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: MAXID")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
@@ -53,14 +77,16 @@ def db_maxid():
 		results = cursor.fetchall()
 		conn.close()
 		return results[0][0]
-	except:
-		print("Error: unable to fetch data")
+	except Exception as e:
+		print(repr(e))
 		conn.close()
 		return -1
 
 # dict当中字符串类型要加上单引号
+
+
 def db_add(data: dict):
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , "Operation: ADD")
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: ADD")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
@@ -85,8 +111,9 @@ def db_add(data: dict):
 	conn.close()
 	return res
 
+
 def db_delete(cid: int):
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , "Operation: DELETE")
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: DELETE")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
@@ -105,8 +132,9 @@ def db_delete(cid: int):
 	conn.close()
 	return res
 
+
 def db_update(cid: int, data: dict):
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) , "Operation: UPDATE")
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: UPDATE")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
@@ -125,39 +153,62 @@ def db_update(cid: int, data: dict):
 		print(repr(e))
 		return {"code": -1, "message": repr(e)}
 
+
+@app.get("/welcome")
+def welcome(token: Optional[str] = ''):
+	if (token != conf['server']['token']):
+		return {"code": -1, "message": "incorrect token"}
+	return {"hello": "world"}
+
+
 @app.get("/fetch")
 def fetch(token: Optional[str] = ''):
-	if (token != conf['server']['token']): return {"message": "incorrect token"}
+	if (token != conf['server']['token']):
+		return {"code": -1, "message": "incorrect token"}
 	return db2dict()
 
+
 @app.get("/push")
-def push(token: Optional[str] = '', modify: Optional[list] = [], delete: Optional[list] = [], add: Optional[list] = []):
-	if (token != conf['server']['token']): return {"message": "incorrect token", "code": -1}
+def push(token: Optional[str] = '', update: Optional[list] = [], delete: Optional[list] = [], add: Optional[list] = []):
+	if (token != conf['server']['token']):
+		return {"code": -1, "message": "incorrect token"}
 	global flag_busy
-	if (flag_busy == True): return {"message": "another operation is in process", "code": -1}
+	if (flag_busy == True):
+		return {"message": "another operation is in process", "code": -1}
 	flag_busy = True
-
-	
-
+	res = {'add': [], 'update': [], 'delete': []}
+	# Add
+	for add_item in add:
+		res['add'].append(db_add(add_item))
+	# Update
+	for update_item in update:
+		res['update'].append(
+			db_update(update_item['cid'], update_item['data']))
+	# Delete
+	for del_item in delete:
+		res['delete'].append(db_delete(del_item))
 	flag_busy = False
-	return {"todo": "todo"}
+	return res
+
 
 def start_server():
-	uvicorn.run(app, host=conf['server']['host'], port=conf['server']['port'], debug=False)
+	uvicorn.run(app, host=conf['server']['host'],
+				port=conf['server']['port'], debug=False)
+
 
 if __name__ == '__main__':
 	read_conf()
 	start_server()
-	
+
 
 # def test():
 # 	db_cache()
 # 	start_server()
 # 	db_maxid()
-# 	test_data = {"title": "'test title from py'", 
-# 			"slug": "NULL", 
-# 			"created": int(time.time()), 
-# 			"modified": int(time.time()), 
+# 	test_data = {"title": "'test title from py'",
+# 			"slug": "NULL",
+# 			"created": int(time.time()),
+# 			"modified": int(time.time()),
 # 			"text": "'工具测试内容'",
 # 			"authorId": 1,
 # 			"template": "NULL",
@@ -168,9 +219,9 @@ if __name__ == '__main__':
 # 			"allowPing": 1,
 # 			"allowFeed": 1
 # 			}
-# 	test_data_modify = {"title": "'test title from py (ver 2.)'", 
-# 			"slug": "'test-slug-2'", 
-# 			"modified": int(time.time()), 
+# 	test_data_modify = {"title": "'test title from py (ver 2.)'",
+# 			"slug": "'test-slug-2'",
+# 			"modified": int(time.time()),
 # 			"text": "'测试修改内容，emoji 😀'",
 # 			"authorId": 0,
 # 			"template": "'github.php'",
