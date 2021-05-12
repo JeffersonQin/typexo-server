@@ -17,8 +17,8 @@ For English README, please visit [here](README-en.md).
 
 # API文档
 
-中文API文档：[Click](API.md).
-English API Document: [Click](API-en.md)
+- 中文API文档：[Click](API.md).
+- English API Document: [Click](API-en.md)
 
 # 使用方法
 
