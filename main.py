@@ -277,6 +277,18 @@ def db_delete_relationship(cid: int, mid: int):
 	return res
 
 
+def db_add_fields(cid: int, data: dict):
+	pass
+
+
+def db_update_fields(cid: int, data: dict):
+	pass
+
+
+def db_delete_fields(cid: int, data: dict):
+	pass
+
+
 @app.get("/welcome")
 def welcome(token: Optional[str] = ''):
 	if (token != conf['server']['token']):
@@ -284,25 +296,11 @@ def welcome(token: Optional[str] = ''):
 	return {"code": 1, "message": "hello world"}
 
 
-@app.get("/fetch_contents")
-def fetch_contents(token: Optional[str] = ''):
+@app.get("/fetch")
+def fetch(db: str, token: Optional[str] = ''):
 	if (token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
-	return db_fetch_database("typecho_contents")
-
-
-@app.get("/fetch_metas")
-def fetch_metas(token: Optional[str] = ''):
-	if (token != conf['server']['token']):
-		return {"code": -1, "message": "incorrect token"}
-	return db_fetch_database("typecho_metas")
-
-
-@app.get("/fetch_relationships")
-def fetch_relationships(token: Optional[str] = ''):
-	if (token != conf['server']['token']):
-		return {"code": -1, "message": "incorrect token"}
-	return db_fetch_database("typecho_relationships")
+	return db_fetch_database(f"{conf['database']['prefix']}{db}")
 
 
 @app.get("/push_contents")
