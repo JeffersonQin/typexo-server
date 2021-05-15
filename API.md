@@ -96,7 +96,7 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
 - **参数列表**:
     | 参数  |     说明     | 可选  |    示例    |
     | :---: | :----------: | :---: | :--------: |
-    | token | 用于请求验证 |   ✔   | your_token |
+    | token | 用于请求验证 |   ✅   | your_token |
 - **返回值示例**:
     ```json
     {
@@ -110,13 +110,14 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
   |  code   | 状态码, 1为成功, -1为失败 |   int    |      1      |
   | message |           消息            |  string  | hello world |
 
-## GET /fetch_contents
+## GET /fetch
 
-- **功能**: 拉取服务端的文章和页面数据
+- **功能**: 拉取服务端数据库
 - **参数列表**:
     | 参数  |     说明     | 可选  |    示例    |
     | :---: | :----------: | :---: | :--------: |
-    | token | 用于请求验证 |   ✔   | your_token |
+    | token | 用于请求验证 |   ✅   | your_token |
+    | db | 数据库名称(除去前缀) |   ❌   | contents |
 - **返回值示例**:
     ```json
     {
@@ -166,6 +167,59 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
         ]
     }
     ```
+	```json
+    {
+		"code": 1,
+		"message": "succeed",
+		"data": [
+			{
+				"mid": 19,
+				"name": "VPS",
+				"slug": "VPS",
+				"type": "tag",
+				"description": null,
+				"count": 2,
+				"order": 0,
+				"parent": 0
+			},
+			{
+				"mid": 2,
+				"name": "AI",
+				"slug": "AI",
+				"type": "tag",
+				"description": null,
+				"count": 1,
+				"order": 0,
+				"parent": 0
+			},{
+				"mid": 3, 
+				"name": "DL",
+				"slug": "DL",
+				"type": "category",
+				"description": "Deep Learning",
+				"count": 1,
+				"order": 1,
+				"parent": 0
+			}
+		]
+	}
+    ```
+	```json
+    {
+        "code": 1,
+        "message": "succeed",
+        "data": [
+            {
+				"cid": 5,
+				"mid": 3
+			},
+			{
+				"cid": 5,
+				"mid": 4
+			}
+        ]
+    }
+    ```
 - **返回值说明**:
   | 返回值  |                说明                 | 数据格式 |  示例   |
   | :-----: | :---------------------------------: | :------: | :-----: |
@@ -179,10 +233,10 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
 - **参数列表**:
     | 参数  | 说明  | 可选  | 示例  |
     | :---: | :---: | :---: | :---: |
-    | token | 用于请求验证 | ✔ | your_token |
-    | add | 增加文章和页面, 是一个list。每个元素都有两个键值, 第一个键值为`hash`, 作为验证, 在本次增加的所有数据中应具有唯一性；第二个键值为`data`, 数据格式请参照typecho数据库设计解释 | ✔ | `[{"hash": 1323795, "data": <page_data_1>}, {"hash": 437289, "data": <page_data_2>}, ...]` |
-    | update | 更改已有文章和页面, 是一个list。每个元素都有两个键值, 第二个键值为文章`cid`, 第二个键值为`data`, 数据格式请参照typecho数据库设计解释。注：这里数据不需完全, 只需包含更改的条目 | ✔ | `[{"cid": 1, "data": <page_data_1>}, {"cid": 2, "data": <page_data_2>}, ...]` |
-    | delete | 删除文章和页面, 是一个list, 包含了所有需要删除内容的`cid` | ✔ | `[1, 2, 3]` |
+    | token | 用于请求验证 | ✅ | your_token |
+    | add | 增加文章和页面, 是一个list。每个元素都有两个键值, 第一个键值为`hash`, 作为验证, 在本次增加的所有数据中应具有唯一性；第二个键值为`data`, 数据格式请参照typecho数据库设计解释 | ✅ | `[{"hash": 1323795, "data": <page_data_1>}, {"hash": 437289, "data": <page_data_2>}, ...]` |
+    | update | 更改已有文章和页面, 是一个list。每个元素都有两个键值, 第二个键值为文章`cid`, 第二个键值为`data`, 数据格式请参照typecho数据库设计解释。注：这里数据不需完全, 只需包含更改的条目 | ✅ | `[{"cid": 1, "data": <page_data_1>}, {"cid": 2, "data": <page_data_2>}, ...]` |
+    | delete | 删除文章和页面, 是一个list, 包含了所有需要删除内容的`cid` | ✅ | `[1, 2, 3]` |
 - **返回值示例**:
     ```json
     {
@@ -251,68 +305,16 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
   | message | 消息, 失败则返回数据库报错 |  string  | succeed |
   |   cid   |       删除文章的cid        |   int    |   234   |
 
-## GET /fetch_metas
-
-- **功能**: 拉取服务端的meta数据
-- **参数列表**:
-    | 参数  |     说明     | 可选  |    示例    |
-    | :---: | :----------: | :---: | :--------: |
-    | token | 用于请求验证 |   ✔   | your_token |
-- **返回值示例**:
-    ```json
-    {
-		"code": 1,
-		"message": "succeed",
-		"data": [
-			{
-				"mid": 19,
-				"name": "VPS",
-				"slug": "VPS",
-				"type": "tag",
-				"description": null,
-				"count": 2,
-				"order": 0,
-				"parent": 0
-			},
-			{
-				"mid": 2,
-				"name": "AI",
-				"slug": "AI",
-				"type": "tag",
-				"description": null,
-				"count": 1,
-				"order": 0,
-				"parent": 0
-			},{
-				"mid": 3, 
-				"name": "DL",
-				"slug": "DL",
-				"type": "category",
-				"description": "Deep Learning",
-				"count": 1,
-				"order": 1,
-				"parent": 0
-			}
-		]
-	}
-    ```
-- **返回值说明**:
-  | 返回值  |                说明                 | 数据格式 |  示例   |
-  | :-----: | :---------------------------------: | :------: | :-----: |
-  |  code   |      状态码, 1为成功, -1为失败      |   int    |    1    |
-  | message |        消息, 成功为"succeed"        |  string  | succeed |
-  |  data   | meta数据, 请参照typecho数据库设计解释 |   list   |   略    |
-
 ## GET /push_metas
 
 - **功能**: 更新meta数据
 - **参数列表**:
     | 参数  | 说明  | 可选  | 示例  |
     | :---: | :---: | :---: | :---: |
-    | token | 用于请求验证 | ✔ | your_token |
-    | add | 增加meta, 是一个list。每个元素都有两个键值, 第一个键值为`hash`, 作为验证, 在本次增加的所有数据中应具有唯一性；第二个键值为`data`, 数据格式请参照typecho数据库设计解释 | ✔ | `[{"hash": 1323795, "data": <meta_data_1>}, {"hash": 437289, "data": <meta_data_2>}, ...]` |
-    | update | 更改已有meta, 是一个list。每个元素都有两个键值, 第二个键值为meta元素的`mid`, 第二个键值为`data`, 数据格式请参照typecho数据库设计解释。注：这里数据不需完全, 只需包含更改的条目 | ✔ | `[{"mid": 1, "data": <meta_data_1>}, {"mid": 2, "data": <meta_data_2>}, ...]` |
-    | delete | 删除meta, 是一个list, 包含了所有需要删除内容的`mid` | ✔ | `[1, 2, 3]` |
+    | token | 用于请求验证 | ✅ | your_token |
+    | add | 增加meta, 是一个list。每个元素都有两个键值, 第一个键值为`hash`, 作为验证, 在本次增加的所有数据中应具有唯一性；第二个键值为`data`, 数据格式请参照typecho数据库设计解释 | ✅ | `[{"hash": 1323795, "data": <meta_data_1>}, {"hash": 437289, "data": <meta_data_2>}, ...]` |
+    | update | 更改已有meta, 是一个list。每个元素都有两个键值, 第二个键值为meta元素的`mid`, 第二个键值为`data`, 数据格式请参照typecho数据库设计解释。注：这里数据不需完全, 只需包含更改的条目 | ✅ | `[{"mid": 1, "data": <meta_data_1>}, {"mid": 2, "data": <meta_data_2>}, ...]` |
+    | delete | 删除meta, 是一个list, 包含了所有需要删除内容的`mid` | ✅ | `[1, 2, 3]` |
 - **返回值示例**:
     ```json
     {
@@ -370,46 +372,15 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
   | message | 消息, 失败则返回数据库报错 |  string  | succeed |
   |   mid   |       删除meta的mid        |   int    |   234   |
 
-## GET /fetch_relationships
-
-- **功能**: 拉取服务端的文章和页面与标签和类别匹配的数据
-- **参数列表**:
-    | 参数  |     说明     | 可选  |    示例    |
-    | :---: | :----------: | :---: | :--------: |
-    | token | 用于请求验证 |   ✔   | your_token |
-- **返回值示例**:
-    ```json
-    {
-        "code": 1,
-        "message": "succeed",
-        "data": [
-            {
-				"cid": 5,
-				"mid": 3
-			},
-			{
-				"cid": 5,
-				"mid": 4
-			}
-        ]
-    }
-    ```
-- **返回值说明**:
-  | 返回值  |               说明               | 数据格式 |  示例   |
-  | :-----: | :------------------------------: | :------: | :-----: |
-  |  code   |    状态码, 1为成功, -1为失败     |   int    |    1    |
-  | message |      消息, 成功为"succeed"       |  string  | succeed |
-  |  data   | 匹配数据, 由一对`cid`与`mid`构成 |   list   |   略    |
-
 ## GET /push_relationships
 
 - **功能**: 更新文章和页面与标签和类别匹配的数据
 - **参数列表**:
     | 参数  | 说明  | 可选  | 示例  |
     | :---: | :---: | :---: | :---: |
-    | token | 用于请求验证 | ✔ | your_token |
-    | add | 增加匹配, 是一个list。每个元素由一对`cid`与`mid`构成 | ✔ | `[{"cid": 5, "mid": 3}, {"cid": 5, "mid": 4}]` |
-    | delete | 删除匹配, 是一个list, 包含了所有需要删除匹配二元组 | ✔ | `[{"cid": 5, "mid": 3}, {"cid": 5, "mid": 4}]` |
+    | token | 用于请求验证 | ✅ | your_token |
+    | add | 增加匹配, 是一个list。每个元素由一对`cid`与`mid`构成 | ✅ | `[{"cid": 5, "mid": 3}, {"cid": 5, "mid": 4}]` |
+    | delete | 删除匹配, 是一个list, 包含了所有需要删除匹配二元组 | ✅ | `[{"cid": 5, "mid": 3}, {"cid": 5, "mid": 4}]` |
 - **返回值示例**:
     ```json
     {
