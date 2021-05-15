@@ -5,6 +5,7 @@ database:
   port: 3306
   db: typecho
   charset: utf8
+  prefix: typecho_
 server:
   host: 127.0.0.1
   port: 32455
