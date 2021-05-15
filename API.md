@@ -72,7 +72,7 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
 
 ## 重要：关于数据格式
 
-由于这里和数据库相关的数据都是直接传给数据库的, 所以有一下约定：对于add/update/delete的数据，若为
+由于在`push`中，和数据库相关的数据都是直接传给数据库的, 所以有一下约定：对于add/update/delete的数据，若为
 - int类型：直接使用数字
 - string类型：双引号之内还要增加一层单引号
 - 其他类型 (e.g. NULL)：使用双引号括起来即可
@@ -126,41 +126,41 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
         "data": [
             {
                 "cid": 1,
-                "title": "'文章标题'", // string数据，额外增加了一层单引号
-                "slug": "'1'",
+                "title": "文章标题",
+                "slug": "1",
                 "created": 1605280680,
                 "modified": 1605781494,
-                "text": "'<!--markdown-->\r\n测试文章内容'",
+                "text": "<!--markdown-->\r\n测试文章内容",
                 "order": 0,
                 "authorId": 1,
-                "type": "'post'",
+                "type": "post",
                 "template": "null",
-                "status": "'publish'",
+                "status": "publish",
                 "password": "null",
                 "commentsNum": 48,
-                "allowComment": "'1'",
-                "allowPing": "'1'",
-                "allowFeed": "'1'",
+                "allowComment": "1",
+                "allowPing": "1",
+                "allowFeed": "1",
                 "parent": 0,
                 "views": 0
             },
             {
                 "cid": 2,
-                "title": "'页面标题'",
-                "slug": "'page'",
+                "title": "页面标题",
+                "slug": "page",
                 "created": 1605280680,
                 "modified": 1605781494,
-                "text": "'<!--markdown-->\r\n测试文章内容'",
+                "text": "<!--markdown-->\r\n测试文章内容",
                 "order": 1,
                 "authorId": 1,
-                "type": "'post'",
-                "template": "'github.pip'",
-                "status": "'publish'",
-                "password": "'abc'",
+                "type": "post",
+                "template": "github.pip",
+                "status": "publish",
+                "password": "abc",
                 "commentsNum": 48,
-                "allowComment": "'1'",
-                "allowPing": "'1'",
-                "allowFeed": "'1'",
+                "allowComment": "1",
+                "allowPing": "1",
+                "allowFeed": "1",
                 "parent": 0,
                 "views": 0
             }
