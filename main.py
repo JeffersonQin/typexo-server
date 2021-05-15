@@ -300,7 +300,7 @@ def welcome(token: Optional[str] = ''):
 def fetch(db: str, token: Optional[str] = ''):
 	if (token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
-	return db_fetch_database(f"{conf['database']['prefix']}{db}")
+	return db_fetch_database(f"{conf['typecho']['prefix']}{db}")
 
 
 @app.get("/push_contents")
