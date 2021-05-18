@@ -303,7 +303,7 @@ def fetch(db: str, token: Optional[str] = ''):
 	return db_fetch_database(f"{conf['typecho']['prefix']}{db}")
 
 
-@app.get("/push_contents")
+@app.post("/push_contents")
 def push_contents(token: Optional[str] = '', add: Optional[list] = [], update: Optional[list] = [], delete: Optional[list] = []):
 	if (token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
@@ -326,7 +326,7 @@ def push_contents(token: Optional[str] = '', add: Optional[list] = [], update: O
 	return res
 
 
-@app.get("/push_metas")
+@app.post("/push_metas")
 def push_metas(token: Optional[str] = '', add: Optional[list] = [], update: Optional[list] = [], delete: Optional[list] = []):
 	if (token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
@@ -347,7 +347,7 @@ def push_metas(token: Optional[str] = '', add: Optional[list] = [], update: Opti
 	return res
 
 
-@app.get("/push_relationships")
+@app.post("/push_relationships")
 def push_relationships(token: Optional[str] = '', add: Optional[list] = [], delete: Optional[list] = []):
 	if (token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}

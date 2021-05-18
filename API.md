@@ -227,7 +227,7 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
   | message |        消息, 成功为"succeed"        |  string  | succeed |
   |  data   | 文章数据, 请参照typecho数据库设计解释 |   list   |   略    |
 
-## GET /push_contents
+## POST /push_contents
 
 - **功能**: 更新文章和页面数据
 - **参数列表**:
@@ -305,7 +305,7 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
   | message | 消息, 失败则返回数据库报错 |  string  | succeed |
   |   cid   |       删除文章的cid        |   int    |   234   |
 
-## GET /push_metas
+## POST /push_metas
 
 - **功能**: 更新meta数据
 - **参数列表**:
@@ -372,7 +372,7 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
   | message | 消息, 失败则返回数据库报错 |  string  | succeed |
   |   mid   |       删除meta的mid        |   int    |   234   |
 
-## GET /push_relationships
+## POST /push_relationships
 
 - **功能**: 更新文章和页面与标签和类别匹配的数据
 - **参数列表**:
