@@ -7,6 +7,7 @@ import uvicorn
 import requests
 from fastapi import FastAPI
 from typing import Optional
+from pydantic import BaseModel
 import time
 
 # Initialization for paths & caches
@@ -303,9 +304,16 @@ def fetch(db: str, token: Optional[str] = ''):
 	return db_fetch_database(f"{conf['typecho']['prefix']}{db}")
 
 
+class RequestBody(BaseModel):
+	token: Optional[str] = ''
+	add: Optional[list] = []
+	update: Optional[list] = []
+	delete: Optional[list] = []
+
+
 @app.post("/push_contents")
-def push_contents(token: Optional[str] = '', add: Optional[list] = [], update: Optional[list] = [], delete: Optional[list] = []):
-	if (token != conf['server']['token']):
+def push_contents(requestBody: RequestBody):
+	if (requestBody.token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
 	global flag_busy
 	if (flag_busy == True):
@@ -313,53 +321,53 @@ def push_contents(token: Optional[str] = '', add: Optional[list] = [], update: O
 	flag_busy = True
 	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
 	# Add
-	for add_item in add:
+	for add_item in requestBody.add:
 		res['add'].append(db_add_content(add_item))
 	# Update
-	for update_item in update:
+	for update_item in requestBody.update:
 		res['update'].append(
 			db_update_content(update_item['cid'], update_item['data']))
 	# Delete
-	for del_item in delete:
+	for del_item in requestBody.delete:
 		res['delete'].append(db_delete_content(del_item))
 	flag_busy = False
 	return res
 
 
 @app.post("/push_metas")
-def push_metas(token: Optional[str] = '', add: Optional[list] = [], update: Optional[list] = [], delete: Optional[list] = []):
-	if (token != conf['server']['token']):
+def push_metas(requestBody: RequestBody):
+	if (requestBody.token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
 	global flag_busy
 	if (flag_busy == True):
 		return {"message": "another operation is in process", "code": -1}
 	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
 	# Add
-	for add_item in add:
+	for add_item in requestBody.add:
 		res['add'].append(db_add_meta(add_item))
 	# Update
-	for update_item in update:
+	for update_item in requestBody.update:
 		res['update'].append(db_update_meta(update_item['mid'], update_item['data']))
 	# Delete
-	for del_item in delete:
+	for del_item in requestBody.delete:
 		res['delete'].append(db_delete_meta(del_item))
 	flag_busy = False
 	return res
 
 
 @app.post("/push_relationships")
-def push_relationships(token: Optional[str] = '', add: Optional[list] = [], delete: Optional[list] = []):
-	if (token != conf['server']['token']):
+def push_relationships(requestBody: RequestBody):
+	if (requestBody.token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
 	global flag_busy
 	if (flag_busy == True):
 		return {"message": "another operation is in process", "code": -1}
 	res = {'code': 1, 'message': 'token correct', 'add': [], 'delete': []}
 	# Add
-	for add_item in add:
+	for add_item in requestBody.add:
 		res['add'].append(db_add_relationship(add_item['cid'], add_item['mid']))
 	# Delete
-	for del_item in delete:
+	for del_item in requestBody.delete:
 		res['delete'].append(db_delete_relationship(del_item['cid'], del_item['mid']))
 	flag_busy = False
 	return res
