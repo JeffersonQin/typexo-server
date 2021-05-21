@@ -362,7 +362,7 @@ def push_relationships(requestBody: RequestBody):
 	global flag_busy
 	if (flag_busy == True):
 		return {"message": "another operation is in process", "code": -1}
-	res = {'code': 1, 'message': 'token correct', 'add': [], 'delete': []}
+	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
 	# Add
 	for add_item in requestBody.add:
 		res['add'].append(db_add_relationship(add_item['cid'], add_item['mid']))

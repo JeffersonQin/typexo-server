@@ -415,6 +415,7 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
   |  code   | 状态码, 1为成功, -1为失败 |   int    |       1       |
   | message |           消息            |  string  | token correct |
   |   add   |    增加匹配的状态返回     |   list   |      略       |
+  | update  |     永远为空，为了统一格式 | list | `[]` |
   | delete  |    删除匹配的状态返回     |   list   |      略       |
 - **增加文章状态返回参数说明**
   | 返回值  |            说明            | 数据格式 |  示例   |
