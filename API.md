@@ -80,6 +80,8 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
 
 除此之外，`string`类型若涉及转义字符，还需进行反转义。
 
+注：在`Python`中，上述过程对于`str`来说只需`repr(<str>)`
+
 ## token
 
 服务器所有请求都采用`token`验证, 如果不想启用`token`, 只需要在`config.yml`中的`server/token`字段留空即可。
