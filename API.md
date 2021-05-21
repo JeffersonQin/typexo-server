@@ -73,9 +73,12 @@ typecho官方对于数据库的说明文档：https://docs.typecho.org/database
 ## 重要：关于数据格式
 
 由于在`push`中，和数据库相关的数据都是直接传给数据库的, 所以有一下约定：对于add/update/delete的数据，若为
+
 - int类型：直接使用数字
 - string类型：双引号之内还要增加一层单引号
 - 其他类型 (e.g. NULL)：使用双引号括起来即可
+
+除此之外，`string`类型若涉及转义字符，还需进行反转义。
 
 ## token
 
