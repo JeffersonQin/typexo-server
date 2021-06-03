@@ -100,10 +100,8 @@ def db_max_mid(db_name: str):
 		conn.close()
 		return -1
 
-# dict当中字符串类型要加上单引号
 
-
-def db_add_content(data: dict):
+def db_add_content(hash, data: dict):
 	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: ADD content")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
@@ -121,10 +119,10 @@ def db_add_content(data: dict):
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
-		res = {"code": 1, "message": "succeed", "cid": db_max_cid('typecho_contents'), "hash": data['hash']}
+		res = {"code": 1, "message": "succeed", "cid": db_max_cid('typecho_contents'), "hash": hash}
 	except Exception as e:
 		conn.rollback()
-		res = {"code": -1, "message": repr(e), "cid": -1, "hash": data['hash']}
+		res = {"code": -1, "message": repr(e), "cid": -1, "hash": hash}
 		print(repr(e))
 	conn.close()
 	return res
@@ -172,23 +170,24 @@ def db_update_content(cid: int, data: dict):
 		return {"code": -1, "message": repr(e), "cid": cid}
 
 
-def db_add_meta(data: dict):
+def db_add_meta(hash, data: dict):
 	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: ADD meta")
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	if data['slug'] == '': data['slug'] = data['name']
+	if 'count' not in data.keys(): data['count'] = 0
 	# Configure the sql command
-	sql = f"INSERT INTO typecho_metas (name, slug, type, description, count) VALUES ({data['name']}, {data['slug']}, {data['type']}, {data['description']}, {data['count']})"
+	sql = f"INSERT INTO typecho_metas (name, slug, type, description, count, parent) VALUES ({data['name']}, {data['slug']}, {data['type']}, {data['description']}, {data['count']}, {data['parent']})"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
 		cursor.execute(sql)
 		conn.commit()
-		res = {"code": 1, "message": "succeed", "mid": db_max_mid("typecho_metas"), "hash": data['hash']}
+		res = {"code": 1, "message": "succeed", "mid": db_max_mid("typecho_metas"), "hash": hash}
 	except Exception as e:
 		conn.rollback()
-		res = {"code": -1, "message": repr(e), "mid": -1, "hash": data['hash']}
+		res = {"code": -1, "message": repr(e), "mid": -1, "hash": hash}
 		print(repr(e))
 	conn.close()
 	return res
@@ -322,7 +321,7 @@ def push_contents(requestBody: RequestBody):
 	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
 	# Add
 	for add_item in requestBody.add:
-		res['add'].append(db_add_content(add_item))
+		res['add'].append(db_add_content(add_item['hash'], add_item['data']))
 	# Update
 	for update_item in requestBody.update:
 		res['update'].append(
@@ -344,7 +343,7 @@ def push_metas(requestBody: RequestBody):
 	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
 	# Add
 	for add_item in requestBody.add:
-		res['add'].append(db_add_meta(add_item))
+		res['add'].append(db_add_meta(add_item['hash'], add_item['data']))
 	# Update
 	for update_item in requestBody.update:
 		res['update'].append(db_update_meta(update_item['mid'], update_item['data']))
