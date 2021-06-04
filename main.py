@@ -277,16 +277,70 @@ def db_delete_relationship(cid: int, mid: int):
 	return res
 
 
-def db_add_fields(cid: int, data: dict):
-	pass
+def db_add_field(cid: int, name: str, type: str, value):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: ADD field")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	# Configure the sql command
+	sql = f"INSERT INTO typecho_fields (cid, name, type, {type}_value) VALUES ({cid}, {name}, {type}, {value})"
+	log_command(sql)
+	res = {"code": 0, "message": ""}
+	try:
+		cursor.execute(sql)
+		conn.commit()
+		res = {"code": 1, "message": "succeed", "cid": cid, "name": name}
+	except Exception as e:
+		conn.rollback()
+		res = {"code": -1, "message": repr(e), "cid": cid, "name": name}
+		print(repr(e))
+	conn.close()
+	return res
 
 
-def db_update_fields(cid: int, data: dict):
-	pass
+def db_update_field(cid: int, name: str, type: str, value):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: UPDATE field")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	res = {"code": 0, "message": ""}
+	try:
+		sql = f"UPDATE typecho_fields SET type = {type} WHERE cid = {cid} AND name = {name}"
+		log_command(sql)
+		cursor.execute(sql)
+		conn.commit()
+		sql = f"UPDATE typecho_fields SET {type}_value = {value} WHERE cid = {cid} AND name = {name}"
+		log_command(sql)
+		cursor.execute(sql)
+		conn.commit()
+		res = {"code": 1, "message": "succeed", "cid": cid, "name": name}
+	except Exception as e:
+		conn.rollback()
+		res = {"code": -1, "message": repr(e), "cid": cid, "name": name}
+		print(repr(e))
+	conn.close()
+	return res
 
 
-def db_delete_fields(cid: int, data: dict):
-	pass
+def db_delete_field(cid: int, name: str):
+	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: DELETE field")
+	# Connect to database
+	conn = pymysql.connect(**conf['database'])
+	cursor = conn.cursor()
+	# Configure the sql command
+	sql = f"DELETE FROM typecho_fields WHERE cid = {cid} AND name = {name}"
+	log_command(sql)
+	res = {"code": 0, "message": ""}
+	try:
+		cursor.execute(sql)
+		conn.commit()
+		res = {"code": 1, "message": "succeed", "cid": cid, "name": name}
+	except Exception as e:
+		conn.rollback()
+		res = {"code": -1, "message": repr(e), "cid": cid, "name": name}
+		print(repr(e))
+	conn.close()
+	return res
 
 
 @app.get("/welcome")
