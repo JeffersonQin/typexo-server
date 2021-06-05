@@ -298,30 +298,6 @@ def db_add_field(cid: int, name: str, type: str, value):
 	return res
 
 
-def db_update_field(cid: int, name: str, type: str, value):
-	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: UPDATE field")
-	# Connect to database
-	conn = pymysql.connect(**conf['database'])
-	cursor = conn.cursor()
-	res = {"code": 0, "message": ""}
-	try:
-		sql = f"UPDATE typecho_fields SET type = {type} WHERE cid = {cid} AND name = {name}"
-		log_command(sql)
-		cursor.execute(sql)
-		conn.commit()
-		sql = f"UPDATE typecho_fields SET {type}_value = {value} WHERE cid = {cid} AND name = {name}"
-		log_command(sql)
-		cursor.execute(sql)
-		conn.commit()
-		res = {"code": 1, "message": "succeed", "cid": cid, "name": name}
-	except Exception as e:
-		conn.rollback()
-		res = {"code": -1, "message": repr(e), "cid": cid, "name": name}
-		print(repr(e))
-	conn.close()
-	return res
-
-
 def db_delete_field(cid: int, name: str):
 	print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), "Operation: DELETE field")
 	# Connect to database
@@ -424,6 +400,24 @@ def push_relationships(requestBody: RequestBody):
 		res['delete'].append(db_delete_relationship(del_item['cid'], del_item['mid']))
 	flag_busy = False
 	return res
+
+
+@app.post("/push_fields")
+def push_fields(requestBody: RequestBody):
+if (requestBody.token != conf['server']['token']):
+		return {"code": -1, "message": "incorrect token"}
+	global flag_busy
+	if (flag_busy == True):
+		return {"message": "another operation is in process", "code": -1}
+	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
+	# Add
+	for add_item in requestBody.add:
+		res['add'].append(db_add_field(add_item['cid'], add_item['name'], add_item['type'], add_item['value']))
+	# Delete
+	for del_item in requestBody.delete:
+		res['delete'].append(db_delete_field(del_item['cid'], del_item['name']))
+	flag_busy = False
+	return res	
 
 
 def start_server():
