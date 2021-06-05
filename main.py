@@ -404,7 +404,7 @@ def push_relationships(requestBody: RequestBody):
 
 @app.post("/push_fields")
 def push_fields(requestBody: RequestBody):
-if (requestBody.token != conf['server']['token']):
+	if (requestBody.token != conf['server']['token']):
 		return {"code": -1, "message": "incorrect token"}
 	global flag_busy
 	if (flag_busy == True):
