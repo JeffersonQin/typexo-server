@@ -106,6 +106,9 @@ def db_add_content(hash, data: dict):
 	# Connect to database
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
+
+	if 'slug' not in data.keys():
+		data['slug'] = 'NULL'
 	# Configure the sql command
 	sql = f"INSERT INTO typecho_contents (title, slug, created, modified, text, authorId, template, type, status, password, allowComment, allowPing, allowFeed) VALUES ({data['title']}, {data['slug']}, {data['created']}, {data['modified']}, {data['text']}, {data['authorId']}, {data['template']}, {data['type']}, {data['status']}, {data['password']}, {data['allowComment']}, {data['allowPing']}, {data['allowFeed']})"
 	log_command(sql)
@@ -283,7 +286,7 @@ def db_add_field(cid: int, name: str, type: str, value):
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
-	sql = f"INSERT INTO typecho_fields (cid, name, type, {type}_value) VALUES ({cid}, {name}, {type}, {value})"
+	sql = f"INSERT INTO typecho_fields (cid, name, type, {type[1:-1]}_value) VALUES ({cid}, {name}, {type}, {value})"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
@@ -410,12 +413,12 @@ def push_fields(requestBody: RequestBody):
 	if (flag_busy == True):
 		return {"message": "another operation is in process", "code": -1}
 	res = {'code': 1, 'message': 'token correct', 'add': [], 'update': [], 'delete': []}
-	# Add
-	for add_item in requestBody.add:
-		res['add'].append(db_add_field(add_item['cid'], add_item['name'], add_item['type'], add_item['value']))
 	# Delete
 	for del_item in requestBody.delete:
 		res['delete'].append(db_delete_field(del_item['cid'], del_item['name']))
+	# Add
+	for add_item in requestBody.add:
+		res['add'].append(db_add_field(add_item['cid'], add_item['name'], add_item['type'], add_item['value']))
 	flag_busy = False
 	return res	
 
