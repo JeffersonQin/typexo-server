@@ -12,7 +12,7 @@ For English README, please visit [here](README-en.md).
 
 # 环境
 
-- Python 3.7+
+- Python 3.6+
 - MySQL
 
 # API文档
