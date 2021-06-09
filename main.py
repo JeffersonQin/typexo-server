@@ -37,7 +37,7 @@ def log_command(sql: str):
 def db_cache():
 	# Export database to cache
 	conn = pymysql.connect(**conf['database'])
-	data_sql = pd.read_sql("select * from typecho_contents", conn)
+	data_sql = pd.read_sql("select * from {conf['typecho']['prefix']}contents", conn)
 	data_sql.to_csv(cache_dir)
 
 def db_fetch_database(db_name: str):
@@ -110,7 +110,7 @@ def db_add_content(hash, data: dict):
 	if 'slug' not in data.keys():
 		data['slug'] = 'NULL'
 	# Configure the sql command
-	sql = f"INSERT INTO typecho_contents (title, slug, created, modified, text, authorId, template, type, status, password, allowComment, allowPing, allowFeed) VALUES ({data['title']}, {data['slug']}, {data['created']}, {data['modified']}, {data['text']}, {data['authorId']}, {data['template']}, {data['type']}, {data['status']}, {data['password']}, {data['allowComment']}, {data['allowPing']}, {data['allowFeed']})"
+	sql = f"INSERT INTO {conf['typecho']['prefix']}contents (title, slug, created, modified, text, authorId, template, type, status, password, allowComment, allowPing, allowFeed) VALUES ({data['title']}, {data['slug']}, {data['created']}, {data['modified']}, {data['text']}, {data['authorId']}, {data['template']}, {data['type']}, {data['status']}, {data['password']}, {data['allowComment']}, {data['allowPing']}, {data['allowFeed']})"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
@@ -118,11 +118,12 @@ def db_add_content(hash, data: dict):
 		conn.commit()
 		# If slug value is not specified, update it with cid
 		if (data['slug'] == 'NULL'):
-			sql = f"UPDATE typecho_contents SET slug = {db_max_cid('typecho_contents')} WHERE cid = {db_max_cid('typecho_contents')}"
+			db_name = f"{conf['typecho']['prefix']}_contents"
+			sql = f"UPDATE {conf['typecho']['prefix']}contents SET slug = {db_max_cid(db_name)} WHERE cid = {db_max_cid(db_name)}"
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
-		res = {"code": 1, "message": "succeed", "cid": db_max_cid('typecho_contents'), "hash": hash}
+		res = {"code": 1, "message": "succeed", "cid": db_max_cid(f"{conf['typecho']['prefix']}contents"), "hash": hash}
 	except Exception as e:
 		conn.rollback()
 		res = {"code": -1, "message": repr(e), "cid": -1, "hash": hash}
@@ -137,7 +138,7 @@ def db_delete_content(cid: int):
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
-	sql = f"DELETE FROM typecho_contents WHERE cid = {cid}"
+	sql = f"DELETE FROM {conf['typecho']['prefix']}contents WHERE cid = {cid}"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
@@ -161,7 +162,7 @@ def db_update_content(cid: int, data: dict):
 	try:
 		# Update with each attribute
 		for key in keys:
-			sql = f"UPDATE typecho_contents SET {key} = {data[key]} WHERE cid = {cid}"
+			sql = f"UPDATE {conf['typecho']['prefix']}contents SET {key} = {data[key]} WHERE cid = {cid}"
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
@@ -181,13 +182,13 @@ def db_add_meta(hash, data: dict):
 	if data['slug'] == '': data['slug'] = data['name']
 	if 'count' not in data.keys(): data['count'] = 0
 	# Configure the sql command
-	sql = f"INSERT INTO typecho_metas (name, slug, type, description, count, parent) VALUES ({data['name']}, {data['slug']}, {data['type']}, {data['description']}, {data['count']}, {data['parent']})"
+	sql = f"INSERT INTO {conf['typecho']['prefix']}metas (name, slug, type, description, count, parent) VALUES ({data['name']}, {data['slug']}, {data['type']}, {data['description']}, {data['count']}, {data['parent']})"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
 		cursor.execute(sql)
 		conn.commit()
-		res = {"code": 1, "message": "succeed", "mid": db_max_mid("typecho_metas"), "hash": hash}
+		res = {"code": 1, "message": "succeed", "mid": db_max_mid(f"{conf['typecho']['prefix']}metas"), "hash": hash}
 	except Exception as e:
 		conn.rollback()
 		res = {"code": -1, "message": repr(e), "mid": -1, "hash": hash}
@@ -202,7 +203,7 @@ def db_delete_meta(mid: int):
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
-	sql = f"DELETE FROM typecho_metas WHERE mid = {mid}"
+	sql = f"DELETE FROM {conf['typecho']['prefix']}metas WHERE mid = {mid}"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
@@ -226,7 +227,7 @@ def db_update_meta(mid: int, data: dict):
 	try:
 		# Update with each attribute
 		for key in keys:
-			sql = f"UPDATE typecho_metas SET {key} = {data[key]} WHERE mid = {mid}"
+			sql = f"UPDATE {conf['typecho']['prefix']}metas SET {key} = {data[key]} WHERE mid = {mid}"
 			log_command(sql)
 			cursor.execute(sql)
 			conn.commit()
@@ -244,7 +245,7 @@ def db_add_relationship(cid: int, mid: int):
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
-	sql = f"INSERT INTO typecho_relationships (cid, mid) VALUES ({cid}, {mid})"
+	sql = f"INSERT INTO {conf['typecho']['prefix']}relationships (cid, mid) VALUES ({cid}, {mid})"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
@@ -265,7 +266,7 @@ def db_delete_relationship(cid: int, mid: int):
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
-	sql = f"DELETE FROM typecho_relationships WHERE cid = {cid} AND mid = {mid}"
+	sql = f"DELETE FROM {conf['typecho']['prefix']}relationships WHERE cid = {cid} AND mid = {mid}"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
@@ -286,7 +287,7 @@ def db_add_field(cid: int, name: str, type: str, value):
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
-	sql = f"INSERT INTO typecho_fields (cid, name, type, {type[1:-1]}_value) VALUES ({cid}, {name}, {type}, {value})"
+	sql = f"INSERT INTO {conf['typecho']['prefix']}fields (cid, name, type, {type[1:-1]}_value) VALUES ({cid}, {name}, {type}, {value})"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
@@ -307,7 +308,7 @@ def db_delete_field(cid: int, name: str):
 	conn = pymysql.connect(**conf['database'])
 	cursor = conn.cursor()
 	# Configure the sql command
-	sql = f"DELETE FROM typecho_fields WHERE cid = {cid} AND name = {name}"
+	sql = f"DELETE FROM {conf['typecho']['prefix']}fields WHERE cid = {cid} AND name = {name}"
 	log_command(sql)
 	res = {"code": 0, "message": ""}
 	try:
