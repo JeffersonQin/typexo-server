@@ -428,7 +428,7 @@ def push_fields(requestBody: RequestBody):
 
 def start_server():
 	uvicorn.run(app, host=conf['server']['host'],
-				port=conf['server']['port'], debug=False)
+				port=conf['server']['port'])
 
 
 if __name__ == '__main__':
