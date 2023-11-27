@@ -10,6 +10,8 @@ For English README, please visit [here](README-en.md).
 
 **请注意：本程序会直接对数据库进行操作，如果你不知道程序在干什么，请勿执行。硬盘有价，数据无价。请确保在操作之前对数据库进行备份。**
 
+[Update 2023/11/27] API_TOKEN 可以由环境变量 override，名称是 `TYPEXO_API_TOKEN`
+
 # 环境
 
 - Python 3.6+

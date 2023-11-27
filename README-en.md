@@ -8,6 +8,8 @@ This project only support blogs using `MySQL` as database in current stage. Othe
 
 **Note: This program will directly manipulate the database. If you don't know what the program is doing, please do not run the script. Data is priceless, make sure to backup the database before any operations.**
 
+[Update 2023/11/27] API_TOKEN can be overriden by environment variable, the name is `TYPEXO_API_TOKEN`
+
 # Environment
 
 - Python 3.7+

@@ -28,6 +28,8 @@ def read_conf():
 		global conf
 		conf = yaml.load(contents, Loader=yaml.FullLoader)
 
+		conf['server']['token'] = os.getenv('TYPEXO_API_TOKEN', conf['server']['token'])
+
 
 def log_command(sql: str):
 	print(time.strftime("%Y-%m-%d %H:%M:%S",
